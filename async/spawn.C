@@ -25,7 +25,7 @@
 #include "rxx.h"
 #include <dirent.h>
 
-str execdir (EXECDIR);
+str execdir ("");
 #ifdef MAINTAINER
 str builddir;
 str buildtmpdir;

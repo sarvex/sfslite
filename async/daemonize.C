@@ -266,7 +266,7 @@ daemonize (const str &nm)
     fatal ("setsid: %m\n");
   if (!builddir) {
     start_logger ();
-    str path = strbuf () << PIDDIR << "/" << pidfilebase << ".pid";
+    str path = strbuf () << pidfilebase << ".pid";
     struct stat sb;
     if (str2file (path, strbuf ("%d\n", int (getpid ())), 0444, false, &sb))
       pidfiles.push_back (pidfile (path, sb));
