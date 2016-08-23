@@ -1,0 +1,13 @@
+# Hashes of file build rules.
+c948ce07a811577d314dc8dedc429ee6 libtame/aio.cxx
+be62cbb48474774560f9b644da252a49 libtame/connectors.cxx
+f9ffc913a10d4e2d131f3e0a35c2624f libtame/io.cxx
+6d87caf6e8669c73d17f5e1c6e818318 libtame/lock.cxx
+af817ee6f79f450aa1e97f1e3a6dbc01 libtame/pipeline.cxx
+9569e867acc841a9afda81ea1baeca4d libtame/pipeline3.cxx
+ced86c73c663363ab895b7c761cce64f libtame/rpcserver.cxx
+a42c28a6e3946d65ad0f10939907f479 libtame/tame_event_ag.h
+9ef025deb3abc38539b59f28e5e3ab49 libtame/tame_tfork_ag.h
+df30eb348361a9db1480fa7ef50d9559 tame_connectors.h
+9c8b40fbf263629ada144fd27ee756dd tame_nlock.h
+8fc552d537bc66c6265800e0f60cca40 tame_redundant.h

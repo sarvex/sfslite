@@ -1,7 +1,7 @@
 # CMakeLists.txt
 # Build libtame
 
-set(TAME /disk/build/ben/obj/opt/dependencies/sfslite-1.2/tame/tame)
+set(TAME ${CMAKE_BINARY_DIR}/tame/tame)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
 
 # PERLED FILES
@@ -19,13 +19,17 @@ set(PERLED_FILES tame_event_ag.h
 
 # Include and links
 include_directories(
-    ${CMAKE_BINARY_DIR}/libtame/
-    ${CMAKE_SOURCE_DIR}/
+    ${CMAKE_BINARY_DIR}/libtame/ # in the build directory
+
+    ${CMAKE_SOURCE_DIR}/         # in the source tree
     ${CMAKE_SOURCE_DIR}/libtame/
     ${CMAKE_SOURCE_DIR}/arpc/
     ${CMAKE_SOURCE_DIR}/crypt/
     ${CMAKE_SOURCE_DIR}/async/)
+
 link_directories(
+    ${CMAKE_BINARY_DIR}/ # in the build directory
+    ${CMAKE_BINARY_DIR}/libtame/ # in the build directory
     ${CMAKE_SOURCE_DIR}/
     ${CMAKE_SOURCE_DIR}/libtame/)
 
@@ -62,4 +66,4 @@ foreach( t_file ${SOURCES} )
 endforeach( t_file ${SOURCES} )
 
 SET(LIBTAME_SOURCE_FILES ${CXXFILES} ${HFILES})
-ADD_LIBRARY(tame SHARED ${LIBTAME_SOURCE_FILES} ${PERLED_FILES})
+ADD_LIBRARY(libtame SHARED ${LIBTAME_SOURCE_FILES} ${PERLED_FILES})
