@@ -1,11 +1,8 @@
 project(SFSlite)
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 2.8.11)
 
-
-
-
-
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
+set(PATH_CPP "/usr/bin/cpp") #$CC -print-prog-name=cpp
 
 #check_struct_has_member("struct msghdr" msg_control "sys/types.h;sys/socket.h" HAVE_CMSGHDR)
 SET(HAVE_CMSGHDR 1)
@@ -93,4 +90,4 @@ ENDIF(BISON_EXECUTABLE)
 add_subdirectory(async)
 add_subdirectory(tame)
 add_subdirectory(libtame)
-add_subdirectory(tools)
+#add_subdirectory(rpcc)
