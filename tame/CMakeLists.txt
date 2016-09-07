@@ -1,7 +1,6 @@
 # CMakeLists.txt
 # Build libtame
 
-set(VERSION "FUTURE")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
 #
 ## PERLED FILES
