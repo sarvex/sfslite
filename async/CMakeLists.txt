@@ -1,14 +1,11 @@
 # CMakeLists.txt
 # Build async
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-set(HAVE_ACCRIGHTS 1)
-
 ## Include and links
 include_directories(
-    ${CMAKE_BINARY_DIR}/tame/ # in the build directory
-    ${CMAKE_BINARY_DIR}/async/ # in the build directory
-    ${CMAKE_SOURCE_DIR}/         # in the source tree
+    ${CMAKE_SOURCE_DIR}/
+    ${CMAKE_BINARY_DIR}/tame/
+    ${CMAKE_BINARY_DIR}/async/
     ${CMAKE_SOURCE_DIR}/tame/
     ${CMAKE_SOURCE_DIR}/arpc/
     ${CMAKE_SOURCE_DIR}/crypt/
@@ -39,9 +36,4 @@ set (ASYNC_SRCS
     select.C select_std.C select_epoll.C select_kqueue.C dynenum.C
     vec.C bundle.C alog2.C leakcheck.C profiler.C wide_str.C const.C)
 
-#
-#file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/async/*.C
-#                          ${PROJECT_SOURCE_DIR}/async/*.h)
-
-#set(ASYNC_FILES ${SOURCES})
 add_library(async ${ASYNC_LIBS} ${ASYNC_SRCS})

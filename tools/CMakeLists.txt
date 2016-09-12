@@ -1,48 +1,99 @@
 ## CMakeLists.txt
-## Build the tools
-
-
-
-
+# Build the tools
 
 # Deal with combo .T files
-set(CXXFILES)
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/tools/rtftp/cli.T)
-foreach( t_file ${SOURCES} )
+set(RTFTPC_CXX)
+set(RTFTPC_T_SOURCES ${PROJECT_SOURCE_DIR}/tools/rtftp/cli.T)
+foreach( t_file ${RTFTPC_T_SOURCES} )
     get_filename_component(name_file ${t_file} NAME)
     string( REPLACE ".T" ".C" cxx_file_path ${t_file} )
     get_filename_component(cxx_file ${cxx_file_path} NAME)
     string( REPLACE ".T" "" f_name ${name_file} )
     add_custom_command(
-        OUTPUT ${PROJECT_SOURCE_DIR}/tools/${cxx_file}
+        OUTPUT ${PROJECT_BINARY_DIR}/tools/${cxx_file}
         COMMAND ${TAME}
-        ARGS    ${t_file} > ${PROJECT_SOURCE_DIR}/tools/${cxx_file}
+        ARGS    ${t_file} > ${PROJECT_BINARY_DIR}/tools/${cxx_file}
         DEPENDS ${t_file})
-    list(APPEND CXXFILES ${PROJECT_SOURCE_DIR}/tools/${cxx_file})
-endforeach( t_file ${SOURCES} )
+    list(APPEND RTFTPC_CXX ${PROJECT_BINARY_DIR}/tools/${cxx_file})
+endforeach( t_file ${RTFTPC_T_SOURCES} )
 
-#set(TAME_SOURCE parse.h tame.C const.C output.C  parse.cc  processor.C scan.cc tame.h)
+set(RTFTPD_CXX)
+set(RTFTPD_T_SOURCES ${PROJECT_SOURCE_DIR}/tools/rtftp/srv.T)
+foreach( t_file ${RTFTPD_T_SOURCES} )
+    get_filename_component(name_file ${t_file} NAME)
+    string( REPLACE ".T" ".C" cxx_file_path ${t_file} )
+    get_filename_component(cxx_file ${cxx_file_path} NAME)
+    string( REPLACE ".T" "" f_name ${name_file} )
+    add_custom_command(
+        OUTPUT ${PROJECT_BINARY_DIR}/tools/${cxx_file}
+        COMMAND ${TAME}
+        ARGS    ${t_file} > ${PROJECT_BINARY_DIR}/tools/${cxx_file}
+        DEPENDS ${t_file})
+    list(APPEND RTFTPD_CXX ${PROJECT_BINARY_DIR}/tools/${cxx_file})
+endforeach( t_file ${RTFTPD_T_SOURCES} )
+
+set(NCPP_CXX)
+set(NCPP_T_SOURCES ${PROJECT_SOURCE_DIR}/tools/ncpp/ncpp.T)
+foreach(t_file ${NCPP_T_SOURCES})
+    get_filename_component(name_file ${t_file} NAME)
+    string( REPLACE ".T" ".C" cxx_file_path ${t_file} )
+    get_filename_component(cxx_file ${cxx_file_path} NAME)
+    string( REPLACE ".T" "" f_name ${name_file} )
+    add_custom_command(
+        OUTPUT ${PROJECT_BINARY_DIR}/tools/${cxx_file}
+        COMMAND ${TAME}
+        ARGS    ${t_file} > ${PROJECT_BINARY_DIR}/tools/${cxx_file}
+        DEPENDS ${t_file})
+    list(APPEND NCPP_CXX ${PROJECT_BINARY_DIR}/tools/${cxx_file})
+endforeach(t_file ${NCPP_T_SOURCES})
+
+set(TINETD_CXX)
+set(TINETD_T_SOURCES ${PROJECT_SOURCE_DIR}/tools/tinetd/tinetd.T)
+foreach(t_file ${NCPP_T_SOURCES})
+    get_filename_component(name_file ${t_file} NAME)
+    string( REPLACE ".T" ".C" cxx_file_path ${t_file} )
+    get_filename_component(cxx_file ${cxx_file_path} NAME)
+    string( REPLACE ".T" "" f_name ${name_file} )
+    add_custom_command(
+        OUTPUT ${PROJECT_BINARY_DIR}/tools/${cxx_file}
+        COMMAND ${TAME}
+        ARGS    ${t_file} > ${PROJECT_BINARY_DIR}/tools/${cxx_file}
+        DEPENDS ${t_file})
+    list(APPEND TINETD_CXX ${PROJECT_BINARY_DIR}/tools/${cxx_file})
+endforeach(t_file ${NCPP_T_SOURCES})
 
 add_custom_command(
-    OUTPUT rtftp_prot.C
+    OUTPUT ${PROJECT_BINARY_DIR}/tools/rtftp_prot.C
     COMMAND ${RPCC}
-    ARGS    -c rtftp_prot.x > rtftp_prot.C
-    DEPENDS rtftp_prot.x)
+    ARGS    -c ${PROJECT_SOURCE_DIR}/tools/rtftp/rtftp_prot.x -o ${PROJECT_BINARY_DIR}/tools/rtftp_prot.C
+    DEPENDS ${PROJECT_SOURCE_DIR}/tools/rtftp/rtftp_prot.x)
+
+add_custom_command(
+    OUTPUT ${PROJECT_BINARY_DIR}/tools/rtftp_prot.h
+    COMMAND ${RPCC}
+    ARGS    -h ${PROJECT_SOURCE_DIR}/tools/rtftp/rtftp_prot.x -o ${PROJECT_BINARY_DIR}/tools/rtftp_prot.h
+    DEPENDS ${PROJECT_SOURCE_DIR}/tools/rtftp/rtftp_prot.x)
 
 set(RTFTPC_SOURCES
-    ${PROJECT_SOURCE_DIR}/tools/rtftp/rtftp_prot.C
+    ${PROJECT_BINARY_DIR}/tools/rtftp_prot.h
+    ${PROJECT_SOURCE_DIR}/tools/rtftp/rtftp.h
     ${PROJECT_SOURCE_DIR}/tools/rtftp/util.C)
 
-#set(RTFTPD_SOURCES
-#    ${PROJECT_SOURCE_DIR}/tools/rtftp/rtftp_prot.C
-#    ${PROJECT_BINARY_DIR}/tools/rtftp/srv.C
-#    ${PROJECT_SOURCE_DIR}/tools/rtftp/util.C)
+set(RTFTPD_SOURCES
+    ${PROJECT_BINARY_DIR}/tools/rtftp_prot.h
+    ${PROJECT_SOURCE_DIR}/tools/rtftp/util.C)
 
-##
-### Include and links
+# Include and links
 include_directories(
-    ${CMAKE_BINARY_DIR}/
     ${CMAKE_SOURCE_DIR}/
+    ${CMAKE_BINARY_DIR}/
+    ${CMAKE_SOURCE_DIR}/libtame/
+    ${CMAKE_BINARY_DIR}/libtame/
+    ${CMAKE_SOURCE_DIR}/libaapp/
+    ${CMAKE_BINARY_DIR}/libaapp/
+    ${CMAKE_SOURCE_DIR}/tools/rtftp/
+    ${CMAKE_BINARY_DIR}/tools/rtftp/
+    ${CMAKE_BINARY_DIR}/tools/
     ${CMAKE_BINARY_DIR}/arpc/
     ${CMAKE_SOURCE_DIR}/arpc/
     ${CMAKE_BINARY_DIR}/crypt/
@@ -51,73 +102,34 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/async/)
 
 link_directories(
-    ${CMAKE_BINARY_DIR}/async/
+    ${CMAKE_SOURCE_DIR}/
+    ${CMAKE_BINARY_DIR}/
+    ${CMAKE_SOURCE_DIR}/libtame/
+    ${CMAKE_BINARY_DIR}/libtame/
     ${CMAKE_SOURCE_DIR}/tame/
     ${CMAKE_BINARY_DIR}/tame/
+    ${CMAKE_SOURCE_DIR}/tools/rtftp/
+    ${CMAKE_BINARY_DIR}/tools/rtftp/
+    ${CMAKE_BINARY_DIR}/tools/
+    ${CMAKE_SOURCE_DIR}/tools/
+    ${CMAKE_BINARY_DIR}/arpc/
     ${CMAKE_SOURCE_DIR}/arpc/
+    ${CMAKE_BINARY_DIR}/crypt/
     ${CMAKE_SOURCE_DIR}/crypt/
+    ${CMAKE_BINARY_DIR}/async/
     ${CMAKE_SOURCE_DIR}/async/)
-##
-### Deal with combo .Th files
-##set(HFILES)
-##file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/libtame/*.Th)
-##foreach( th_file ${HEADERS} )
-##    get_filename_component(name_file ${th_file} NAME)
-add_executable(rtftpc ${RTFTPC_SOURCES} ${CXXFILES})
-target_link_libraries(rtftpc PUBLIC async pcre resolv nsl gmp)
-#add_executable(rtftpd ${RTFTPD_SOURCES} ${CXXFILES})
 
+#add_executable(rtftpc ${RTFTPC_CXX} ${RTFTPC_SOURCES})
+#target_link_libraries(rtftpc PUBLIC crypt libtame arpc async pcre resolv nsl gmp crypt)
 #
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y")
-##
-### PERLED FILES
-##add_custom_command(
-##    OUTPUT tame_event_ag.h
-##    COMMAND perl ${CMAKE_SOURCE_DIR}/libtame/mkevent.pl > tame_event_ag.h
-##    DEPENDS mkevent.pl)
-##add_custom_command(
-##    OUTPUT tame_tfork_ag.h
-##    COMMAND perl ${CMAKE_SOURCE_DIR}/libtame/mktfork_ag.pl > tame_tfork_ag.h
-##    DEPENDS mktfork_ag.pl)
-##
-##set(PERLED_FILES tame_event_ag.h
-##                 tame_tfork_ag.h)
-##    string( REPLACE ".Th" ".h" h_file_path ${th_file} )
-##    get_filename_component(h_file ${h_file_path} NAME)
-##    string( REPLACE ".T" "" f_name ${name_file} )
-##    add_custom_command(
-##        OUTPUT ${h_file}
-##        COMMAND ${TAME}
-##        ARGS    -o ${h_file} ${th_file}
-##        DEPENDS ${th_file})
-##    list(APPEND HFILES ${h_file})
-##endforeach( th_file ${HEADERS} )
-##
-### Deal with combo .T files
-##set(CXXFILES)
-##file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/libtame/*.T)
-##foreach( t_file ${SOURCES} )
-##    get_filename_component(name_file ${t_file} NAME)
-##    string( REPLACE ".T" ".cxx" cxx_file_path ${t_file} )
-##    get_filename_component(cxx_file ${cxx_file_path} NAME)
-##    string( REPLACE ".T" "" f_name ${name_file} )
-##    add_custom_command(
-##        OUTPUT ${cxx_file}
-##        COMMAND ${TAME}
-##        ARGS    ${t_file} > ${cxx_file}
-##        DEPENDS ${t_file})
-##    list(APPEND CXXFILES ${cxx_file})
-##endforeach( t_file ${SOURCES} )
-##
-##SET(LIBTAME_SOURCE_FILES ${CXXFILES} ${HFILES})
-##ADD_LIBRARY(tame SHARED ${LIBTAME_SOURCE_FILES} ${PERLED_FILES})
-#
-#set(TAME_SOURCE parse.h tame.C const.C output.C  parse.cc  processor.C scan.cc tame.h)
-#
-##find_package(BISON 2.1.3)
-##set(TAME_SOURCE tame.C processor.C const.C output.C )
-##file(GLOB_RECURSE TAME_HEADERS ${PROJECT_SOURCE_DIR}/tame/*.h)
-##set(BISON_SOURCE ${PROJECT_SOURCE_DIR}/tame/parse.yy)
-##BISON_TARGET(MyParser ${BISON_SOURCE} ${PROJECT_SOURCE_DIR}/parse.cc
-##    DEFINES_FILE ${CMAKE_CURRENT_BINARY_DIR}/parser.h)
-##add_executable(tame ${TAME_HEADERS} ${BISON_MyParser_OUTPUTS} ${BISON_MyParser_OUTPUT_HEADER} ${TAME_SOURCE})
+#add_executable(rtftpd ${RTFTPD_CXX} ${RTFTPD_SOURCES})
+#target_link_libraries(rtftpd PUBLIC crypt libtame arpc async pcre resolv nsl gmp crypt)
+
+add_executable(ncpp ${NCPP_CXX})
+target_link_libraries(ncpp PUBLIC crypt libtame arpc async pcre resolv nsl gmp crypt)
+
+add_executable(tinetd ${TINETD_CXX})
+target_link_libraries(tinetd PUBLIC crypt libtame arpc async pcre resolv nsl gmp crypt)
+
+add_executable(logger ${PROJECT_SOURCE_DIR}/tools/logger/logger.C)
+target_link_libraries(logger PUBLIC crypt libaapp libtame arpc async pcre resolv nsl gmp crypt)

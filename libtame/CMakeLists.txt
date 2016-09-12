@@ -2,7 +2,6 @@
 # Build libtame
 
 set(TAME ${CMAKE_BINARY_DIR}/tame/tame)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++14") # prefer c++, but this needs gnu specific violations
 
 # PERLED FILES
 add_custom_command(
@@ -17,40 +16,6 @@ add_custom_command(
 set(PERLED_FILES
     ${CMAKE_BINARY_DIR}/libtame/tame_tfork_ag.h
     ${CMAKE_BINARY_DIR}/libtame/tame_event_ag.h)
-
-# Deal with combo .T files
-set(CXXFILES)
-#set(SOURCES ${LIBTAME_SRC})
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/libtame/*.T)
-foreach( t_file ${SOURCES} )
-    get_filename_component(name_file ${t_file} NAME)
-    string( REPLACE ".T" ".cxx" cxx_file_path ${t_file} )
-    get_filename_component(cxx_file ${cxx_file_path} NAME)
-    string( REPLACE ".T" "" f_name ${name_file} )
-    add_custom_command(
-        OUTPUT ${CMAKE_BINARY_DIR}/libtame/${cxx_file}
-        COMMAND ${TAME}
-        ARGS    ${t_file} > ${CMAKE_BINARY_DIR}/libtame/${cxx_file}
-        DEPENDS ${t_file})
-    #MESSAGE(${cxx_file})
-    list(APPEND CXXFILES ${CMAKE_BINARY_DIR}/libtame/${cxx_file})
-endforeach( t_file ${SOURCES} )
-
-
-include_directories(
-    ${CMAKE_BINARY_DIR}/libtame/ # in the build directory
-    ${CMAKE_BINARY_DIR}/ # in the build directory
-    ${CMAKE_SOURCE_DIR}/libtame/
-    ${CMAKE_SOURCE_DIR}/         # in the source tree
-    ${CMAKE_SOURCE_DIR}/arpc/
-    ${CMAKE_SOURCE_DIR}/crypt/
-    ${CMAKE_SOURCE_DIR}/async/)
-
-link_directories(
-    ${CMAKE_BINARY_DIR}/ # in the build directory
-    ${CMAKE_BINARY_DIR}/libtame/ # in the build directory
-    ${CMAKE_SOURCE_DIR}/
-    ${CMAKE_SOURCE_DIR}/libtame/)
 
 set(LIBTAME_HEADERS
      tame_event.h
@@ -78,13 +43,62 @@ set(LIBTAME_HEADERS
      tame_profiler.h
      tame_pipeline3.h)
 
-#set(LIBTAME_SRC
-#    ${PROJECT_SOURCE_DIR}/libtame/pipeline.T
-#    ${PROJECT_SOURCE_DIR}/libtame/lock.T)
+set(LIBTAME_C_SRC
+    closure.C
+    event.C
+    init.C
+    leak.C
+    mkevent.C
+    profiler.C
+    recycle.C
+    run.C
+    tfork.C
+    thread.C
+    trigger.C)
+
+set(LIBTAME_T_SOURCES
+    aio.T
+    connectors.T
+    io.T
+    lock.T
+    pipeline3.T
+    pipeline.T
+    rpcserver.T)
+
+# Deal with combo .T files
+set(CXXFILES)
+foreach( t_file ${LIBTAME_T_SOURCES} )
+    get_filename_component(name_file ${t_file} NAME)
+    string( REPLACE ".T" ".cxx" cxx_file_path ${t_file} )
+    get_filename_component(cxx_file ${cxx_file_path} NAME)
+    string( REPLACE ".T" "" f_name ${name_file} )
+    add_custom_command(
+        OUTPUT ${CMAKE_BINARY_DIR}/libtame/${cxx_file}
+        COMMAND ${TAME}
+        ARGS    ${PROJECT_SOURCE_DIR}/libtame/${t_file} > ${CMAKE_BINARY_DIR}/libtame/${cxx_file}
+        DEPENDS ${PROJECT_SOURCE_DIR}/libtame/${t_file})
+    list(APPEND CXXFILES ${CMAKE_BINARY_DIR}/libtame/${cxx_file})
+endforeach( t_file ${LIBTAME_T_SOURCES} )
+
+include_directories(
+    ${CMAKE_BINARY_DIR}/libtame/ # in the build directory
+    ${CMAKE_BINARY_DIR}/ # in the build directory
+    ${CMAKE_SOURCE_DIR}/libtame/
+    ${CMAKE_SOURCE_DIR}/         # in the source tree
+    ${CMAKE_SOURCE_DIR}/arpc/
+    ${CMAKE_SOURCE_DIR}/crypt/
+    ${CMAKE_SOURCE_DIR}/async/)
+
+link_directories(
+    ${CMAKE_BINARY_DIR}/ # in the build directory
+    ${CMAKE_BINARY_DIR}/libtame/ # in the build directory
+    ${CMAKE_SOURCE_DIR}/
+    ${CMAKE_SOURCE_DIR}/libtame/)
 
 # Deal with combo .Th files
 set(HFILES)
-file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/libtame/*.Th)
+#file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/libtame/*.Th)
+set(HEADERS tame_connectors.Th tame_nlock.Th tame_redundant.Th)
 foreach( th_file ${HEADERS} )
     get_filename_component(name_file ${th_file} NAME)
     string( REPLACE ".Th" ".h" h_file_path ${th_file} )
@@ -93,10 +107,10 @@ foreach( th_file ${HEADERS} )
     add_custom_command(
         OUTPUT ${h_file}
         COMMAND ${TAME}
-        ARGS    -o ${h_file} ${th_file}
-        DEPENDS ${th_file})
+        ARGS    -o ${h_file} ${PROJECT_SOURCE_DIR}/libtame/${th_file}
+        DEPENDS ${PROJECT_SOURCE_DIR}/libtame/${th_file})
     list(APPEND HFILES ${h_file})
 endforeach( th_file ${HEADERS} )
 
-SET(LIBTAME_SOURCE_FILES ${LIBTAME_HEADERS} ${CXXFILES} ${HFILES})
+SET(LIBTAME_SOURCE_FILES ${LIBTAME_C_SRC} ${LIBTAME_HEADERS} ${CXXFILES} ${HFILES})
 ADD_LIBRARY(libtame SHARED ${PERLED_FILES} ${LIBTAME_SOURCE_FILES})
