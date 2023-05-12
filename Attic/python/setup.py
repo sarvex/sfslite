@@ -22,6 +22,7 @@ pysfs is `Free Software`_.
 
 """
 
+
 import os
 import sys
 from distutils.core import setup
@@ -29,7 +30,7 @@ from distutils.extension import Extension
 import distutils.sysconfig
 
 
-name = "SFS-%s" % os.path.basename(sys.executable)
+name = f"SFS-{os.path.basename(sys.executable)}"
 version = "0.1"
 extra_objects = []
 extra_compile_args = [ '-g' ]
@@ -68,58 +69,60 @@ metadata = {
     'platforms': "ALL",
     'url': "http://www.maxk.org",
     'download_url': "http://foo.foo.com",
-    'classifiers': [ c for c in classifiers.split('\n') if c ],
-    'py_modules': [
-        "async.util",
-        "async.__init__"
-        ],
+    'classifiers': [c for c in classifiers.split('\n') if c],
+    'py_modules': ["async.util", "async.__init__"],
     'ext_modules': [
-        Extension( name='async.core',
-                   sources=['async/core.C'],
-                   include_dirs=include_dirs,
-                   library_dirs=library_dirs,
-                   libraries=libraries,
-                   extra_compile_args=extra_compile_args,
-                   extra_objects=extra_objects,
-                   runtime_library_dirs=library_dirs,
-                   language='c++',
-                   ),
-        Extension( name='async.rpctypes',
-                   sources=['async/rpctypes.C'],
-                   include_dirs=include_dirs,
-                   library_dirs=library_dirs,
-                   libraries=libraries,
-                   extra_compile_args=extra_compile_args,
-                   extra_objects=extra_objects,
-                   runtime_library_dirs=library_dirs,
-                   language='c++',
-                   ),
-        Extension( name='ex1.ex1',
-                   sources=['ex1/ex1.C'],
-                   include_dirs=include_dirs,
-                   library_dirs=library_dirs,
-                   libraries=libraries,
-                   extra_compile_args=extra_compile_args,
-                   extra_objects=extra_objects,
-                   runtime_library_dirs=library_dirs,
-                   language='c++',
-                   )
-        ],
-
-    'libraries' :
-         [ ( 'pyarpc',
-             { 'sources' : [ 'pyarpc/py_' + f + '.C'
-                             for f in [ 'gen', 'rpctypes', 'util' ] ],
-               'include_dirs': include_dirs + py_inc,
-               'library_dirs': library_dirs,
-               'libraries': libraries,
-               'extra_compile_args': extra_compile_args,
-               'extra_objects': extra_objects,
-               'runtime_library_dirs': library_dirs,
-               'language': 'c++',
-               }
-             )
-           ]
-    }
+        Extension(
+            name='async.core',
+            sources=['async/core.C'],
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
+            libraries=libraries,
+            extra_compile_args=extra_compile_args,
+            extra_objects=extra_objects,
+            runtime_library_dirs=library_dirs,
+            language='c++',
+        ),
+        Extension(
+            name='async.rpctypes',
+            sources=['async/rpctypes.C'],
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
+            libraries=libraries,
+            extra_compile_args=extra_compile_args,
+            extra_objects=extra_objects,
+            runtime_library_dirs=library_dirs,
+            language='c++',
+        ),
+        Extension(
+            name='ex1.ex1',
+            sources=['ex1/ex1.C'],
+            include_dirs=include_dirs,
+            library_dirs=library_dirs,
+            libraries=libraries,
+            extra_compile_args=extra_compile_args,
+            extra_objects=extra_objects,
+            runtime_library_dirs=library_dirs,
+            language='c++',
+        ),
+    ],
+    'libraries': [
+        (
+            'pyarpc',
+            {
+                'sources': [
+                    f'pyarpc/py_{f}.C' for f in ['gen', 'rpctypes', 'util']
+                ],
+                'include_dirs': include_dirs + py_inc,
+                'library_dirs': library_dirs,
+                'libraries': libraries,
+                'extra_compile_args': extra_compile_args,
+                'extra_objects': extra_objects,
+                'runtime_library_dirs': library_dirs,
+                'language': 'c++',
+            },
+        )
+    ],
+}
 
 setup(**metadata)

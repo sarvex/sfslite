@@ -53,8 +53,8 @@ class OutputTypes:
     ##----------------------------------------
 
     @classmethod
-    def All (self):
-        return set ([self.TXT, self.DOT, self.PNG, self.PS] )
+    def All(cls):
+        return {cls.TXT, cls.DOT, cls.PNG, cls.PS}
 
 ##=======================================================================
 
@@ -103,7 +103,7 @@ class Line:
     ##----------------------------------------
 
     def __str__(self):
-        return "%s %s %s" % (self._prefix, self._prog, self._meat)
+        return f"{self._prefix} {self._prog} {self._meat}"
 
     ##----------------------------------------
 
@@ -122,14 +122,11 @@ class Line:
 
 ##=======================================================================
 
-def isDoubled (v):
+def isDoubled(v):
     if len (v) % 2 != 0:
         return False
     hlen = len (v) / 2
-    for i in range (hlen):
-        if v[i] != v[i+hlen]:
-            return False
-    return True
+    return all(v[i] == v[i+hlen] for i in range(hlen))
 
 ##=======================================================================
 
@@ -264,8 +261,8 @@ class Edge:
 
     ##----------------------------------------
         
-    def __str__ (self):
-        return "%s-%s" % (self._caller.name (), self._callee.name ())
+    def __str__(self):
+        return f"{self._caller.name()}-{self._callee.name()}"
 
     ##----------------------------------------
 
@@ -292,10 +289,8 @@ class Edge:
 
 ##=======================================================================
 
-def my_int (s):
-    base = 10
-    if s[0:2] == "0x":
-        base = 16
+def my_int(s):
+    base = 16 if s[:2] == "0x" else 10
     return int (s, base)
 
 ##-----------------------------------------------------------------------
@@ -315,15 +310,14 @@ def node_sw_sort_fn (a, b):
 
 ##=======================================================================
 
-def isExe (p):
+def isExe(p):
     cmd = [ FILE, "-L", p ]
     p = subprocess.Popen (cmd, 
                           stdin = subprocess.PIPE,
                           stdout = subprocess.PIPE,
                           close_fds = True)
     desc = p.stdout.readline ().strip ()
-    ret = bool (re.search ("\\bexecutable\\b", desc))
-    return ret
+    return bool (re.search ("\\bexecutable\\b", desc))
 
 ##=======================================================================
         
@@ -355,12 +349,8 @@ class File:
 
     ##----------------------------------------
 
-    def jname (self):
-        if self._jail:
-            ret = self._jail + "/" + self._name
-        else:
-            ret = self._name
-        return ret
+    def jname(self):
+        return f"{self._jail}/{self._name}" if self._jail else self._name
 
 ##=======================================================================
 
@@ -374,17 +364,16 @@ def split_to_ints (l):
 
 ##=======================================================================
 
-def csym_split (s):
+def csym_split(s):
     LINE_LEN = 60
     rxx = re.compile ("^(.*?([<,]|::))(.*)$")
     out = []
     go = True
     while go and len (s) > LINE_LEN:
-        prfx = s[0:LINE_LEN]
-        m = rxx.match (s[LINE_LEN:])
-        if m:
-            out += [ prfx + m.group (1) ]
-            s = m.group (3)
+        prfx = s[:LINE_LEN]
+        if m := rxx.match(s[LINE_LEN:]):
+            out += [prfx + m[1]]
+            s = m[3]
         else:
             go = False
     out += [ s ]
@@ -392,9 +381,8 @@ def csym_split (s):
 
 ##=======================================================================
 
-def toDotParams (lst):
-    ret = "[" + ', '.join (['%s="%s"' % p for p in lst ]) + "]"
-    return ret
+def toDotParams(lst):
+    return "[" + ', '.join (['%s="%s"' % p for p in lst ]) + "]"
 
 ##=======================================================================
 
@@ -471,7 +459,7 @@ class Graph:
 
     ##----------------------------------------
 
-    def initSites (self, sites, files):
+    def initSites(self, sites, files):
         """ for all call sites, make a new site object, and then
         store them sorted by .so file, so that way we can look
         them all up together."""
@@ -479,7 +467,7 @@ class Graph:
         for k in sites.keys ():
 
             (file_id, addr) = sites[k]
-            if files.get(file_id) == None:
+            if files.get(file_id) is None:
                 continue;
             file = files[file_id]
             addr = file.applyOffset (addr)
@@ -487,8 +475,7 @@ class Graph:
             site = Site (file, addr)
             self._sites[k] = site
 
-            v = self._sites_by_file.get (file)
-            if v:
+            if v := self._sites_by_file.get(file):
                 v.append (site)
             else:
                 self._sites_by_file[file] = [ site ]
@@ -501,17 +488,15 @@ class Graph:
 
     ##----------------------------------------
 
-    def nodeSize (self, i):
-        x = max(10, float (i) * 20.00 / float (self._total_samples))
-        return x
+    def nodeSize(self, i):
+        return max(10, float (i) * 20.00 / float (self._total_samples))
 
     ##----------------------------------------
 
-    def penWidth (self, i, d = None):
+    def penWidth(self, i, d = None):
         if d is None:
             d = self._total_samples
-        x = min(8, max (1, float (i) * 8 / float (d)))
-        return x
+        return min(8, max (1, float (i) * 8 / float (d)))
 
     ##----------------------------------------
 
@@ -525,16 +510,13 @@ class Graph:
 
     ##----------------------------------------
 
-    def initNodes (self):
+    def initNodes(self):
         """Map multiple call sites to a single Node object."""
 
         id = 0
         for v in self._sites.values ():
 
-            # Note that the lookup might have failed...
-            funcname = v.funcname()
-
-            if funcname:
+            if funcname := v.funcname():
                 n = self._nodes.get (funcname)
                 if not n:
                     n = Node (funcname, id)
@@ -553,13 +535,13 @@ class Graph:
 
     ##----------------------------------------
 
-    def initEdges (self, edges):
+    def initEdges(self, edges):
         """Initialize all edges, as a function of node to node mappings.
         Also, fill in hit counts per node while we're at it."""
         self._edges = {}
         for e in edges:
             hits = e[2]
-            if self._sites.get(e[0]) == None or self._sites.get(e[1]) == None:
+            if self._sites.get(e[0]) is None or self._sites.get(e[1]) is None:
                 continue;
 
             caller = self._sites[e[0]].node ()
@@ -568,9 +550,10 @@ class Graph:
                 callee.addCalleeHits (hits)
                 caller.addCallerHits (hits)
                 e = Edge (caller = caller, callee = callee, hits = hits)
-                e2 = self._edges.get (str(e))
-                if e2: e2 += e
-                else: self._edges[str(e)] = e
+                if e2 := self._edges.get(str(e)):
+                    if e2: e2 += e
+                else:
+                    self._edges[str(e)] = e
             
     ##----------------------------------------
 
@@ -726,15 +709,15 @@ class Graph:
 
     ##----------------------------------------
 
-    def outputPs (self, props):
-        fn = "%s.ps" % self.fileStem (props)
+    def outputPs(self, props):
+        fn = f"{self.fileStem(props)}.ps"
         cmd = [ DOT , "-Tps", "-o", fn, self._dotfile ]
         rc = subprocess.call (cmd)
 
     ##----------------------------------------
 
-    def outputPng (self, props):
-        fn = "%s.png" % self.fileStem (props)
+    def outputPng(self, props):
+        fn = f"{self.fileStem(props)}.png"
         cmd = [ DOT , "-Tpng", "-o", fn, self._dotfile ]
         rc = subprocess.call (cmd)
 
@@ -745,12 +728,13 @@ class Graph:
 
     ##----------------------------------------
 
-    def headerText (self, props):
-        v =  [ "infile: %s" % props.filename (),
-               "program: %s" % self._prog ,
-               "begin: %s" % self._begin,
-               "end: %s" % self._end ]
-        return v
+    def headerText(self, props):
+        return [
+            f"infile: {props.filename()}",
+            f"program: {self._prog}",
+            f"begin: {self._begin}",
+            f"end: {self._end}",
+        ]
 
     ##----------------------------------------
 
@@ -797,7 +781,7 @@ class Parser:
 
     ##----------------------------------------
 
-    def parseGraph (self, serial, props):
+    def parseGraph(self, serial, props):
         lines = []
         go = True
         while not self.eof () and go:
@@ -811,10 +795,7 @@ class Parser:
                         go = False
                     else:
                         lines.append (x)
-        ret = None
-        if len(lines):
-            ret = Graph (lines, serial, props)
-        return ret 
+        return Graph (lines, serial, props) if len(lines) else None 
 
     ##----------------------------------------
 

@@ -50,7 +50,7 @@ def call2(cli):
 def call3(cli):
     z = ex1.bb_t ()
     z.aa = ex1.A2;
-    z.b.foos = [ex1.foo_t () for i in range(0,2) ]
+    z.b.foos = [ex1.foo_t () for _ in range(0,2)]
     z.b.foos[0].x = "foos[0] = 4"
     z.b.foos[0].xx = 4
     z.b.foos[1].x = "foos[1] = 5"
@@ -63,7 +63,7 @@ def call4(cli):
     z = ex1.fooz_t ()
     z.baz.alloc ()
     z.baz.p = ex1.baz_t ()
-    z.baz.p.foos = [ex1.foo_t () for i in range (0,2) ]
+    z.baz.p.foos = [ex1.foo_t () for _ in range (0,2)]
     z.baz.p.foos[0].x = "foos[0] = 4"
     z.baz.p.foos[0].xx = 4
     z.baz.p.foos[1].x = "foos[1] = 5"
@@ -86,11 +86,7 @@ def call5(cli):
 def call6(cli):
     cli.call (ex1.FOO_OPQ, None, cb);
 
-port = 3000
-if len (sys.argv) > 1:
-    port = int (sys.argv[1])
-
-
+port = int (sys.argv[1]) if len (sys.argv) > 1 else 3000
 sock = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
 sock.connect (('127.0.0.1', port))
 fd = sock.fileno ()

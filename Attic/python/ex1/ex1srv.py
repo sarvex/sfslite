@@ -80,10 +80,7 @@ def newcon(sock):
     print "returned from asrv init"
     active_srvs.append (srv)
 
-port = 3000
-if len (sys.argv) > 1:
-    port = int (sys.argv[1])
-
+port = int (sys.argv[1]) if len (sys.argv) > 1 else 3000
 sock = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
 sock.bind (('127.0.0.1', port))
 sock.listen (10);

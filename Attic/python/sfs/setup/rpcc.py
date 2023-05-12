@@ -34,34 +34,32 @@ class rpccompiler:
     def spawn (self, cmd):
         distutils.spawn.spawn (cmd, dry_run=self.dry_run, verbose=self.verbose)
     
-    def find_rpcc (self, loc):
+    def find_rpcc(self, loc):
         executable = 'rpcc'
 
         if loc is not None:
             if os.path.isfile (loc):
-                raise DistutilsSetupError, \
-                      "cannot find provided rpcc compiler: " + loc
+                raise (DistutilsSetupError, f"cannot find provided rpcc compiler: {loc}")
             else:
                 return loc
-                
+
         paths = string.split (os.environ['PATH'], os.pathsep)
         for p in paths + sfs.setup.local.lib:
             f = os.path.join (p, executable)
             if os.path.isfile (f):
                 return f
         raise DistutilsSetupError, \
-              "cannot find an rpcc compiler"
+                  "cannot find an rpcc compiler"
     
     # find_rpcc ()
 
-    def compile_all (self, sources, output_dir):
+    def compile_all(self, sources, output_dir):
         if self.rpcc is None:
             raise DistutilsSetupError, "no rpcc compiler found"
         for s in sources:
             base, ext = os.path.splitext (s)
             if ext != '.x':
-                raise DistutilsSetupError, \
-                      "file without .x extension: '%s'" % s
+                raise (DistutilsSetupError, f"file without .x extension: '{s}'")
             if output_dir:
                 dir, fl = os.path.split (s)
                 outfile = os.path.join (output_dir, fl)
@@ -71,11 +69,10 @@ class rpccompiler:
             self.compile_hdr (s, outfile)
             self.compile_cfile (s, outfile)
 
-    def to_y_file (self, xfile, e):
+    def to_y_file(self, xfile, e):
         base, ext = os.path.splitext (xfile);
         if ext != '.x':
-            raise DistutilsSetupError, \
-                  "file without .x extension: '%s'" % s
+            raise (DistutilsSetupError, f"file without .x extension: '{s}'")
         return string.join ([base, e], '.')
 
     def to_c_file (self, xfile):
